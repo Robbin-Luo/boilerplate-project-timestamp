@@ -12,25 +12,32 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+app.get("/api", function (req, res) {
+    const inputDate=new Date(Date.now());
+    const timeStamp=Date.now();
+    const utcTime=inputDate.toUTCString();
+    res.send({"unix":timeStamp, "utc":utcTime});
+});
+
 
 app.get("/api/:time", function (req, res) {
   const inputTime=req.params.time;
   var inputDate, timeStamp, utcTime;
-  if(/^\d{4}-[0-1]\d-[0-3]\d$/.test(inputTime)){
+  console.log(isNaN(Date.parse(inputTime)));
+  if(isNaN(Date.parse(inputTime))===false){
     inputDate=new Date(inputTime);
     timeStamp=inputDate.getTime();
     utcTime=inputDate.toUTCString();
-    res.json({"unix":timeStamp, "utc":utcTime});
+    res.send({"unix":timeStamp, "utc":utcTime});
   } else if(/^\d*?0{5}$/.test(inputTime)){
     inputDate=new Date(inputTime*1);
-    timeStamp=inputTime;
+    timeStamp=inputTime*1;
     utcTime=inputDate.toUTCString();
-    res.json({"unix":timeStamp, "utc":utcTime});
-  } else {
-    res.json({"error":"Invalid Date"})
-  }
+    res.send({"unix":timeStamp, "utc":utcTime});
+  } else if(inputTime!==''&& isNaN(Date.parse(inputTime))===true){
+    res.send({"error":"Invalid Date"});
+  } 
 });
-
 
 var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
